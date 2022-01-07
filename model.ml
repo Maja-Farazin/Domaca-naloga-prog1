@@ -52,7 +52,11 @@ let get_column (grid : 'a grid) (col_ind : int) =
 
 let columns grid = List.init 9 (get_column grid)
 
-let get_box (grid : 'a grid) (box_ind : int) = failwith "TODO"
+let get_box (grid : 'a grid) (box_ind : int) = 
+  let row_ind = box_ind / 3 * 3 and
+  col_ind = box_ind mod 3 * 3 in
+  "TODO"
+
 
 let boxes grid = List.init 9 (get_box grid)
 
@@ -97,7 +101,12 @@ let grid_of_string cell_of_char str =
 
 type problem = { initial_grid : int option grid }
 
-let print_problem problem : unit = failwith "TODO"
+let print_problem problem : unit = 
+  let string_of_cell = function
+  | Some x -> string_of_int x
+  | None -> " "
+  in
+  print_grid string_of_cell problem
 
 let problem_of_string str =
   let cell_of_char = function
@@ -111,6 +120,10 @@ let problem_of_string str =
 
 type solution = int grid
 
-let print_solution solution = failwith "TODO"
+let print_solution solution = 
+  let string_of_cell = function
+  | Some x -> string_of_int x
+  in
+  print_grid string_of_cell solution 
 
 let is_valid_solution problem solution = failwith "TODO"
