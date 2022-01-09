@@ -48,15 +48,15 @@ let get_row (grid : 'a grid) (row_ind : int) = Array.get grid row_ind
 let rows grid = List.init 9 (get_row grid)
 
 let get_column (grid : 'a grid) (col_ind : int) =
-  Array.init 9 (fun row_ind -> grid.(row_ind).(col_ind))
+  Array.init 9 (fun x -> grid.(x).(col_ind))
 
 let columns grid = List.init 9 (get_column grid)
 
 let get_box (grid : 'a grid) (box_ind : int) = 
   let row_ind = box_ind / 3 * 3 and
   col_ind = box_ind mod 3 * 3 in
-  "TODO"
-
+  let rows = Array.init 3 (fun x -> grid.(row_ind + x)) in
+  Array.init 9 (fun x -> rows.(x/3).(col_ind + (x mod 3)))
 
 let boxes grid = List.init 9 (get_box grid)
 
@@ -106,7 +106,7 @@ let print_problem problem : unit =
   | Some x -> string_of_int x
   | None -> " "
   in
-  print_grid string_of_cell problem
+  print_grid string_of_cell problem.initial_grid
 
 let problem_of_string str =
   let cell_of_char = function
@@ -120,10 +120,27 @@ let problem_of_string str =
 
 type solution = int grid
 
-let print_solution solution = 
-  let string_of_cell = function
-  | Some x -> string_of_int x
-  in
-  print_grid string_of_cell solution 
+let print_solution solution = print_grid string_of_int solution 
 
-let is_valid_solution problem solution = failwith "TODO"
+let is_valid_solution problem solution = 
+  let is_valid_array arr = 
+    let rec aux i arr acc finished = 
+      match i with 
+        | 9 -> if finished then 2 else 1
+        | _ -> match Array.get arr i with
+          | Some n -> if (acc.(n-1) > 0) then 0
+            else let new_acc = Array.copy acc in
+ new_acc.(n-1) <- 1; aux (i+1) arr new_acc finished
+          | None -> aux (i+1) arr acc false
+    in
+    aux 0 arr (Array.init 9 (function _ -> 0)) true
+  in
+  let rec aux i grid finished  = 
+    match i with
+    | 9 -> if finished then Some true else None
+    | _ -> match (is_valid_array (get_row grid i)) * (is_valid_array (get_column grid i)) * (is_valid_array (get_box grid i)) with
+      | 8 ->  aux (i+1) grid true
+      | 0 -> Some false
+      | _ -> aux (i+1) grid false
+  in
+  aux 0 solution true
